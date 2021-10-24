@@ -6,28 +6,40 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <style>
-        body {
-            margin: 0;
-        }
         .canvas {
             background: #eee;
         }
     </style>
 </head>
 <body>
+    <h1>requestAnimationFrame</h1>
     <canvas class="canvas" width="500" height="300"></canvas>
-
-
+    
     <script>
         const canvas = document.querySelector('.canvas');
-
         const context = canvas.getContext('2d');
+        let xPos = 10;
+        let animeID = 0;
+        function draw(){
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            context.beginPath();
+            context.arc(xPos, 150, 5, 0, Math.PI*2, false);
+            context.fill();
+
+            xPos += 1;
+
+            if( xPos >= canvas.width - 5 ){
+                xPos = 0;
+            }
+
+            animeID = requestAnimationFrame(draw);
+            
+        }
+        draw()
+        canvas.addEventListener("click",()=>{
+            cancelAnimationFrame(animeID);
+        });
         
-        context.fillStyle = '#ff0000';
-        context.fillRect(0, 0, 100, 100);
-
     </script>
-
-
 </body>
 </html>
