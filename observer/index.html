@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Observer</title>
+</head>
+<body>
+    
+</body>
+<script>
+    /*
+        일간 신문과 우러간 잡지를 출판하는 papaer 라는 발행자가 있다.구독자 joe는 출판될 때마다 알림을 받게된다.
+        paper 객체에는 모든 구독자를 subscribers 프로퍼티에 저장한다.
+        이벤트가 발생하면 subscripbers 배열에 있는 구독자에게 알린다. 알림이란 구독자 객체의 메서드를 호출한다는 뜻이다. 따라서, 구독자는
+        구독할 때 자신의 메서드중 하나를 subscribe() 메서드에 전달해야 한다.
+        unsubscribe() subscribers 배열에서 구독자를 제거한다.
+        subscribers - 구독자 배열
+        subscribe() - subscribers 배열에 구독자를 추가한다.
+        unsubscribe() - subscribers 배열에서 구독자를 제거한다.
+        publish() - subscribers를 순회하여  구독자들이 등록할 때 제공한 메서드들을 호출한다.
+
+    */
+    var publisher = {
+        subscribers : { //배열
+            any : [],            
+        },
+        subscribe: function( fn, type){
+            type = type || 'any';
+            if( typeof this.subscribers[type] === "undefined" ){
+                this.subscribers[type] = [];
+            }
+            this.subscribers[type].push(fn);
+        },
+        unsubscribe: function(fn, type){
+            this.visitSubscribers('unsubscribe', fn, type);
+        },
+        publish: function(publication, type){
+            this.visitSubscribers('publish', publication, type)
+        },
+        visitSubscribers: function(action, arg, type){
+            var pubtype = type || 'any',
+            subscribers = this.subscribers[pubtype],
+            i,
+            max = subscribers.length;
+        
+            for(i = 0; i < max; i+=1){
+                if(action === 'publish'){
+                    subscribers[i](arg)
+                } else {
+                    if( subscribers[i] === arg){
+                        subscribers.splice(i, 1);
+                    }
+                }
+            }
+        }
+    }
+
+    function makePublisher(o){
+        var i;
+        for (i in publisher){
+            if(publisher.hasOwnProperty(i) &&
+            typeof publisher[i] === "function" ){
+                o[i] = publisher[i];
+            }
+        }
+        o.subscribers = {any: []};
+    }
+
+    var paper = {
+        daily: function(){
+            this.publish("big news today");
+        },
+        monthly: function(){
+            this.publish("interesting analysis", "monthly");
+        }
+    }
+
+    makePublisher(paper);
+
+    var joe = {
+        drinkCoffee: function(paper){
+            console.log(paper + "를 읽었습니다.");
+        },
+        sunDayPreNap: function(monthly){
+            console.log( "잠들기 전에"+monthly + "를 읽고 있었습니다." );
+        }
+    }
+
+   
+
+    paper.subscribe(joe.drinkCoffee);
+    paper.subscribe(joe.sunDayPreNap, "monthly");
+
+    paper.daily();
+    paper.daily();
+    paper.daily();
+
+    paper.monthly();
+
+    makePublisher(joe);
+
+    joe.tweet = function(msg){
+        this.publish(msg);
+    }
+
+    paper.readMe = function(tweet){
+        alert("Send everyeone " + tweet);
+    }
+
+    paper.readTweet = function(tweet){
+        alert("Call big metting! Someone " + tweet);
+    }
+
+
+    joe.subscribe(paper.readMe);
+    joe.subscribe(paper.readTweet,"tweet");
+    
+
+    joe.tweet("hated the paper today");
+</script>
+</html>
