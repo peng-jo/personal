@@ -1,12 +1,24 @@
-import { Observable, Subject, BehaviorSubject  } from 'rxjs';
+import { Observable, Subject  } from 'rxjs';
 
-const subject = new BehaviorSubject(123);
+var subject = new Subject();
 
-var a = subject.subscribe(console.log);  //a 감시자, subscribe를 통해 콜백 행동  
-var b = subject.subscribe(console.log);  //b 감시자, subscribe를 통해 콜백 행동
-subject.next(456);   //감시중인 a, b에서 456 2번출력
-var c = subject.subscribe(console.log);  //새로운 c 감시자, 저장된 데이터인 456 출력
-subject.next(789);  //a, b, c가 각각 1번씩 출력
+subject.subscribe(
+    data => addItem('Observer 1: '+ data),
+    err => addItem(err),
+)
+
+subject.next("The first thing has been sent");
+
+
+var observer2 = subject.subscribe(
+    data => addItem('Observer 2: ' + data)
+)
+
+subject.next("The second thing has been sent");
+subject.next("The third thing has been sent");
+
+observer2.unsubscribe();
+
 
 function addItem(val:any){
     var node = document.createElement("li");
